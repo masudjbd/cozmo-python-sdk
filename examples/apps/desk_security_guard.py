@@ -33,11 +33,11 @@ import cozmo_twitter_keys as twitter_keys
 
 
 #: The twitter user (without the @ symbol) that will receive security photos, etc.
-OWNER_TWITTER_USERNAME = ""
+OWNER_TWITTER_USERNAME = "test07zephyr"
 
 #: The name that the owner's face is enrolled as (i.e. your username in the app)
 #: When that face is seen, Cozmo will assume no other faces currently seen are intruders
-OWNER_FACE_ENROLL_NAME = ""
+OWNER_FACE_ENROLL_NAME = "test07zephyr"
 
 
 if OWNER_TWITTER_USERNAME == "":

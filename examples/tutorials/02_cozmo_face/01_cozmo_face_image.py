@@ -41,7 +41,9 @@ def cozmo_program(robot: cozmo.robot.Robot):
 
     # load some images and convert them for display cozmo's face
     image_settings = [("../../face_images/cozmosdk.png", Image.BICUBIC),
-                      ("../../face_images/hello_world.png", Image.NEAREST)]
+                      ("../../face_images/hello_world.png", Image.NEAREST),
+                      ("../../face_images/sifat.png", Image.NEAREST),
+                      ("../../face_images/shanta.png", Image.NEAREST)]
     face_images = []
     for image_name, resampling_mode in image_settings:
         image = Image.open(image_name)
