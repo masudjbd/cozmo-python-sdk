@@ -80,7 +80,7 @@ Follow these steps to set up and run the example:
 import asyncio
 import re
 import sys
-
+import math   # This will import math module
 
 try:
     from aiohttp import web
@@ -90,7 +90,6 @@ except ImportError:
 import cozmo
 
 from common import IFTTTRobot
-
 
 app = web.Application()
 
@@ -108,36 +107,51 @@ async def serve_gmail(request):
     from_email_address = json_object["FromAddress"]
 
     # Use a regular expression to break apart pieces of the email address
-    match_object = re.search(r'([\w.]+)@([\w.]+)', from_email_address)
-    email_local_part = match_object.group(1)
+    # match_object = re.search(r'([\w.]+)\s([\w.]+)', from_email_address)
+    # email_local_part = match_object.group(1)
 
     robot = request.app['robot']
+
     async def read_name():
         try:
             async with robot.perform_off_charger():
                 '''If necessary, Move Cozmo's Head and Lift to make it easy to see Cozmo's face.'''
                 await robot.get_in_position()
 
+                cozmo.logger.warning("Text: " + from_email_address)
+
                 # First, have Cozmo play an animation
                 await robot.play_anim_trigger(cozmo.anim.Triggers.ReactToPokeStartled).wait_for_completed()
 
-                # Next, have Cozmo speak the name of the email sender.
-                await robot.say_text("Email from " + email_local_part).wait_for_completed()
+                ln = len(from_email_address)
+                mx = 220
 
+                await robot.say_text("Email Text ").wait_for_completed()
+
+                if ln > mx:
+                    lp = math.ceil(ln / mx)
+                    for i in range(lp):
+                        s = int(i)
+                        e = int(i + mx)
+                        t = from_email_address[s:e]
+                        # Next, have Cozmo speak the name of the email sender.
+                        await robot.say_text(t).wait_for_completed()
+                else:
+                    await robot.say_text(from_email_address).wait_for_completed()
                 # Last, have Cozmo display an email image on his face.
                 robot.display_image_file_on_face("../face_images/ifttt_gmail.png")
 
         except cozmo.RobotBusy:
-            cozmo.logger.warning("Robot was busy so didn't read email address: "+ from_email_address)
+            cozmo.logger.warning("Robot was busy so didn't read email address: " + from_email_address)
 
     # Perform Cozmo's task in the background so the HTTP server responds immediately.
     asyncio.ensure_future(read_name())
 
     return web.Response(text="OK")
 
+
 # Attach the function as an HTTP handler.
 app.router.add_post('/iftttGmail', serve_gmail)
-
 
 if __name__ == '__main__':
     cozmo.setup_basic_logging()
@@ -147,7 +161,7 @@ if __name__ == '__main__':
     cozmo.conn.CozmoConnection.robot_factory = IFTTTRobot
 
     try:
-        app_loop = asyncio.get_event_loop()  
+        app_loop = asyncio.get_event_loop()
         sdk_conn = cozmo.connect_on_loop(app_loop)
 
         # Wait for the robot to become available and add it to the app object.
